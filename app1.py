@@ -35,6 +35,8 @@ if "vector_db" not in st.session_state:
 
 if "file_name" not in st.session_state:
     st.session_state.file_name = None
+if "messages" not in st.session_state:
+    st.session_state.messages = []    
 
 
 # --------------------------------------------------
@@ -139,14 +141,24 @@ if st.session_state.vector_db is not None:
         f"{st.session_state.file_name}"
     )
 
+# --------------------------------------------------
+# 8.5 Chat History
+# --------------------------------------------------
+
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.write(message["content"])
+
+
+
 
 # --------------------------------------------------
 # 9. Question
 # --------------------------------------------------
 
-question = st.text_input(
-    "Write your query here"
-)
+question = st.chat_input("Ask a question about your PDF")
+
+
 
 
 # --------------------------------------------------
@@ -155,9 +167,18 @@ question = st.text_input(
 
 if question:
 
+    if question:
+        st.session_state.messages.append({
+                "role": "user",
+                "content": question
+            })
+        
+    with st.chat_message("user"):
+        st.write(question)
+        
     if st.session_state.vector_db is None:
-
         st.warning("Please upload and process a PDF first.")
+    
 
     else:
 
@@ -228,6 +249,10 @@ say:
         # Display answer
         # --------------------------------------------------
 
-        st.subheader("Answer")
+        st.session_state.messages.append({
+    "role": "assistant",
+    "content": response.text
+})
 
-        st.write(response.text)
+        with st.chat_message("assistant"):
+            st.write(response.text)
