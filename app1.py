@@ -152,6 +152,8 @@ for message in st.session_state.messages:
 
 
 
+
+
 # --------------------------------------------------
 # 9. Question
 # --------------------------------------------------
@@ -167,17 +169,24 @@ question = st.chat_input("Ask a question about your PDF")
 
 if question:
 
-    if question:
-        st.session_state.messages.append({
-                "role": "user",
-                "content": question
-            })
+    st.session_state.messages.append({
+            "role": "user",
+            "content": question
+        })
+ 
+    history = st.session_state.messages[:-1]
+
+    conversation = "\n".join(
+                f"{message['role']}: {message['content']}"
+                for message in history
+            )  
+        
         
     with st.chat_message("user"):
-        st.write(question)
-        
+                    st.write(question)
+                    
     if st.session_state.vector_db is None:
-        st.warning("Please upload and process a PDF first.")
+        st.warning("Please upload and process a PDF first.")    
     
 
     else:
@@ -228,6 +237,9 @@ Context:
 
 Question:
 {question}
+
+Conversation History:
+{conversation}
 
 If the answer is not present in the context,
 say:
